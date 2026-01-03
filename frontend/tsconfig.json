@@ -22,13 +22,11 @@
         "name": "next"
       }
     ],
-    // baseUrl hata di gayi, paths modern style me
     "paths": {
       "@/*": [
         "./*"
       ]
-    },
-    "ignoreDeprecations": "6.0"
+    }
   },
   "include": [
     "next-env.d.ts",
