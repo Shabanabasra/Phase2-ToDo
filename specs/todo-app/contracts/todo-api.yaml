@@ -1,0 +1,479 @@
+openapi: 3.0.3
+info:
+  title: Todo Full-Stack Web Application API
+  description: API for managing user todos with authentication and user isolation
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Development server
+  - url: https://api.todoapp.com
+    description: Production server
+
+paths:
+  /api/auth/register:
+    post:
+      summary: Register a new user
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+      responses:
+        '201':
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid input or user already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+
+  /api/auth/login:
+    post:
+      summary: Login user and return JWT token
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+
+  /api/{user_id}/tasks:
+    get:
+      summary: Get all tasks for a specific user
+      tags:
+        - Tasks
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: User ID to retrieve tasks for
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of tasks to return
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          required: false
+          description: Number of tasks to skip
+          schema:
+            type: integer
+            default: 0
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of user's tasks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tasks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TodoResponse'
+                  total:
+                    type: integer
+        '401':
+          description: Unauthorized - invalid or expired token
+        '403':
+          description: Forbidden - user cannot access another user's tasks
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+    post:
+      summary: Create a new task for the user
+      tags:
+        - Tasks
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: User ID to create task for
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoCreate'
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Task successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoResponse'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or expired token
+        '403':
+          description: Forbidden - user cannot create tasks for another user
+        '500':
+          description: Internal server error
+
+  /api/{user_id}/tasks/{id}:
+    get:
+      summary: Get a specific task for the user
+      tags:
+        - Tasks
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: string
+            format: uuid
+        - name: id
+          in: path
+          required: true
+          description: Task ID
+          schema:
+            type: string
+            format: uuid
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Task details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoResponse'
+        '401':
+          description: Unauthorized - invalid or expired token
+        '403':
+          description: Forbidden - user cannot access another user's task
+        '404':
+          description: Task not found
+        '500':
+          description: Internal server error
+    put:
+      summary: Update a specific task for the user
+      tags:
+        - Tasks
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: string
+            format: uuid
+        - name: id
+          in: path
+          required: true
+          description: Task ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoUpdate'
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Task successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoResponse'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or expired token
+        '403':
+          description: Forbidden - user cannot update another user's task
+        '404':
+          description: Task not found
+        '500':
+          description: Internal server error
+    delete:
+      summary: Delete a specific task for the user
+      tags:
+        - Tasks
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: string
+            format: uuid
+        - name: id
+          in: path
+          required: true
+          description: Task ID
+          schema:
+            type: string
+            format: uuid
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Task successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized - invalid or expired token
+        '403':
+          description: Forbidden - user cannot delete another user's task
+        '404':
+          description: Task not found
+        '500':
+          description: Internal server error
+
+  /api/{user_id}/tasks/{id}/complete:
+    patch:
+      summary: Toggle completion status of a specific task
+      tags:
+        - Tasks
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: string
+            format: uuid
+        - name: id
+          in: path
+          required: true
+          description: Task ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_completed:
+                  type: boolean
+                  description: New completion status
+              required:
+                - is_completed
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Task completion status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoResponse'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or expired token
+        '403':
+          description: Forbidden - user cannot update another user's task
+        '404':
+          description: Task not found
+        '500':
+          description: Internal server error
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UserRegistration:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+        password:
+          type: string
+          format: password
+          description: User's password
+          minLength: 8
+      required:
+        - email
+        - password
+
+    UserLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+        password:
+          type: string
+          format: password
+          description: User's password
+      required:
+        - email
+        - password
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: User's unique identifier
+        email:
+          type: string
+          format: email
+          description: User's email address
+        created_at:
+          type: string
+          format: date-time
+          description: User creation timestamp
+
+    LoginResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT access token
+        token_type:
+          type: string
+          default: bearer
+        user:
+          $ref: '#/components/schemas/UserResponse'
+
+    TodoCreate:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Task title
+          maxLength: 255
+        description:
+          type: string
+          description: Task description
+          maxLength: 1000
+      required:
+        - title
+
+    TodoUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Task title
+          maxLength: 255
+        description:
+          type: string
+          description: Task description
+          maxLength: 1000
+        is_completed:
+          type: boolean
+          description: Completion status
+
+    TodoResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Task unique identifier
+        title:
+          type: string
+          description: Task title
+        description:
+          type: string
+          description: Task description
+        is_completed:
+          type: boolean
+          description: Completion status
+        user_id:
+          type: string
+          format: uuid
+          description: Associated user ID
+        created_at:
+          type: string
+          format: date-time
+          description: Task creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Task last update timestamp
+
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Error message
+        error_code:
+          type: string
+          description: Error code for programmatic handling
+
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Success message
+        success:
+          type: boolean
+          default: true

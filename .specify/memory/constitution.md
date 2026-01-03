@@ -1,55 +1,53 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!-- SYNC IMPACT REPORT
+Version change: 1.0.0 → 1.1.0
+Modified principles:
+- Principle 1: Project Focus → Full-Stack Web Application Development
+- Principle 2: Code Quality → Production-Grade Code Standards
+- Principle 3: Security-First Approach (new)
+- Principle 4: Authentication & Authorization (new)
+- Principle 5: Data Persistence & Integrity (new)
+- Principle 6: Responsive & Accessible UI (new)
+Added sections: Security Requirements, Development Workflow
+Removed sections: None
+Templates requiring updates:
+- .specify/templates/plan-template.md ✅ updated
+- .specify/templates/spec-template.md ✅ updated
+- .specify/templates/tasks-template.md ✅ updated
+Follow-up TODOs: None
+-->
+
+# Todo Full-Stack Web Application Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### Full-Stack Web Application Development
+All features must be implemented as a complete, integrated solution spanning both frontend and backend. The application must be developed as a modern, responsive, multi-user web application with persistent storage and authentication. Frontend (Next.js 16+ with TypeScript) and backend (FastAPI with SQLModel) must work in harmony to deliver a cohesive user experience.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### Production-Grade Code Standards
+All code must meet production-grade standards: clean, readable, maintainable, and well-documented. No mock logic or placeholder implementations are allowed. Code must follow established patterns and conventions of the respective technologies (Next.js, FastAPI, SQLModel). All implementations must be complete and functional, not just proof-of-concept.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### Security-First Approach (NON-NEGOTIABLE)
+Security must be the primary concern in all design and implementation decisions. All API routes require valid JWT authentication. User ID from JWT must match URL user_id. Users can only access their own tasks. Environment variables containing secrets must be properly secured. No hardcoded secrets or authentication bypasses are allowed.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### Authentication & Authorization
+User authentication and authorization must be implemented using industry-standard practices. Better Auth (JWT enabled) must be used for frontend authentication. All API endpoints must validate JWT tokens with proper verification. User isolation must be enforced at the database and API levels. Authorization must follow the principle that users can only access their own data.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### Data Persistence & Integrity
+All data must be persisted in PostgreSQL (Neon Serverless) using SQLModel for ORM operations. Database schema must be properly designed with appropriate relationships and constraints. Data integrity must be maintained through proper validation, error handling, and transaction management. All database operations must be efficient and secure against injection attacks.
 
-### [PRINCIPLE_6_NAME]
+### Responsive & Accessible UI
+The user interface must be responsive and accessible across different devices and screen sizes. Frontend implementation must use modern CSS frameworks (Tailwind CSS) and follow accessibility best practices. The UI must provide a seamless experience for both desktop and mobile users. All components must be designed with user experience as a primary concern.
 
+## Security Requirements
 
-[PRINCIPLE__DESCRIPTION]
+All API routes require valid JWT authentication. User ID from JWT must match URL user_id. Users can only access their own tasks. Environment variables must be properly managed: DATABASE_URL, BETTER_AUTH_SECRET, NEXT_PUBLIC_API_URL, and JWT_ALGORITHM must be securely configured. The single .env file must remain at project root with backend loading it explicitly using python-dotenv and frontend reading only NEXT_PUBLIC_* variables.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Development Workflow
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
-
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+The monorepo structure must be maintained with frontend/ for Next.js application and backend/ for FastAPI application. All development must follow the Spec-Driven Engineering approach using Spec-Kit Plus. Each feature must have proper specifications, plans, and testable tasks. Code reviews must verify compliance with all constitution principles. All changes must be tested and validated before merging.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+The constitution supersedes all other development practices and must be followed without exception. All pull requests and code reviews must verify compliance with these principles. Any complexity must be justified with clear reasoning. The constitution can only be amended through proper documentation, approval, and migration planning.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.1.0 | **Ratified**: 2025-06-13 | **Last Amended**: 2025-12-30
